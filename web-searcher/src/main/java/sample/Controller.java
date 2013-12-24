@@ -7,18 +7,13 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -38,13 +33,13 @@ public class Controller {
     private WebView page;
 
     private Map<String, CompletableFuture<String>> content = new ConcurrentHashMap<>();
+    private List<SearchProvider> providers;
 
     @FXML
     void initialize() {
-        List<String> searchProviders = Arrays.asList("Google", "Wikipedia");
-        List<SearchProvider> providers = Arrays.asList(
+        providers = Arrays.asList(
                 new SimpleUrlSearchProvider("Google", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser()),
-                new SimpleUrlSearchProvider("Wikipedia", "", new GoogleJsonParser())
+                new SimpleUrlSearchProvider("Wikipedia", "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=15&search=", new WikipediaJsonParser("http://en.wikipedia.org/wiki/"))
         );
 
         zoekterm.setText("Computer");
@@ -53,8 +48,8 @@ public class Controller {
 
         TreeItem<String> rootItem = new TreeItem<String>("Search Providers");
         rootItem.setExpanded(true);
-        for (String searchProvider : searchProviders) {
-            TreeItem<String> item = new TreeItem<String>(searchProvider);
+        for (SearchProvider searchProvider : providers) {
+            TreeItem<String> item = new TreeItem<String>(searchProvider.getName());
             rootItem.getChildren().add(item);
         }
         searches.setRoot(rootItem);
@@ -80,15 +75,15 @@ public class Controller {
         String text = zoekterm.getText();
         System.out.println("Search for: " + text);
 
-        TreeItem<String> provider = searches.getRoot().getChildren().get(0);
-        boolean verwijderd = provider.getChildren().removeAll(provider.getChildren());
-        log("Verwijderd: " + verwijderd);
+        for (TreeItem<String> item : searches.getRoot().getChildren()) {
+            boolean verwijderd = item.getChildren().removeAll(item.getChildren());
+            log("Verwijderd voor " + item.getValue() + ": " + verwijderd);
+        }
 
-        SimpleUrlSearchProvider google = new SimpleUrlSearchProvider("Google", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser());
-        try {
-
+        for (final SearchProvider searchProvider : providers) {
+            System.out.println("Dealing with provider " + searchProvider.getName());
             CompletableFuture<List<UrlContent>> listCompletableFuture
-                    = supplyAsync(() -> parseLinksForSite(google.buildUrl(text), google))
+                    = supplyAsync(() -> parseLinksForSite(searchProvider.buildUrl(text), searchProvider))
                     // als de async de site van de search provider bevraagd heeft,
                     // kunnen de url's worden toegevoegd aan de tree.
                     // Zie ook het gebruik van Optional als alternatief van de null-check
@@ -97,7 +92,10 @@ public class Controller {
                                     .ifPresent(lijst ->
                                             searches.getRoot()
                                                     .getChildren()
-                                                    .filtered(p -> p.getValue().equals(google.getName()))
+                                                    .filtered(p -> {
+                                                        System.out.println(p + ":" + searchProvider.getName() + " --- " + p.getValue().equals(searchProvider.getName()));
+                                                        return p.getValue().equals(searchProvider.getName());
+                                                    })
                                                     .forEach(ti -> lijst.forEach(
                                                             url -> {
                                                                 addUrlToTreeItem(ti, url);
@@ -113,18 +111,19 @@ public class Controller {
                                     .map(link -> new UrlContent(link, getPage(link)))
                                     .collect(toList())));
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+
     }
 
     private boolean addUrlToTreeItem(TreeItem<String> ti, URL url) {
         return ti.getChildren().add(new TreeItem<>(url.toString()));
     }
 
-    private List<URL> parseLinksForSite(final URL searchPage, final SimpleUrlSearchProvider searchProvider) {
-        return searchProvider.parse(getPage(searchPage));
+    private List<URL> parseLinksForSite(final URL searchPage, final SearchProvider searchProvider) {
+        List<URL> links = searchProvider.parse(getPage(searchPage));
+        log("Lijst van " + searchPage + "=" + links);
+        return links;
     }
 
     private String getPage(final URL site) {
@@ -181,7 +180,47 @@ class GoogleJsonParser implements LinkParser {
             throw new IllegalArgumentException("Ongeldige url: " + unescapedUrl, e);
         }
     }
+}
 
+class WikipediaJsonParser implements LinkParser {
+    private final String url;
+
+    WikipediaJsonParser(String url) {
+        this.url = url;
+    }
+
+    @Override
+    public List<URL> parseForLinks(String message) {
+        try (JsonReader reader = Json.createReader(new StringReader(message))) {
+            JsonArray array = reader.readArray();
+            JsonArray alternatives = array.getJsonArray(1);
+            System.out.println("Empty: " + alternatives.isEmpty());
+            if (alternatives.isEmpty()) return Collections.emptyList();
+            else {
+                List<URL> list = alternatives.stream()
+                        .map(jsv -> createUrl(jsv))
+                        .collect(toList());
+                System.out.println("Links Wikipedia: " + list);
+                return list;
+            }
+        }
+    }
+
+    private URL createUrl(JsonValue jsv) {
+        String encode;
+        try {
+            encode = URLEncoder.encode(jsv.toString().replace('+', '_'), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("Ongeldige url: " + jsv.toString(), e);
+        }
+        try {
+            URL theUrl = new URL(url + encode);
+            System.out.println("Wiki url: " + theUrl.toString());
+            return theUrl;
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Ongeldige url: " + url +encode, e);
+        }
+    }
 }
 
 class UrlContent {
