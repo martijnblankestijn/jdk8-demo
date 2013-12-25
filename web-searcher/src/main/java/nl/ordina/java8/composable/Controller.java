@@ -26,6 +26,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.logging.Level.*;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
+import static javafx.application.Platform.runLater;
 
 public class Controller {
     private static final Logger LOG = getLogger(lookup().lookupClass().getName());
@@ -96,7 +97,7 @@ public class Controller {
                                             searches.getRoot()
                                                     .getChildren()
                                                     .filtered(p -> p.getValue().equals(provider.getName()))
-                                                    .forEach(ti -> refreshList(lijst, ti))
+                                                    .forEach(ti -> runLater(() -> refreshList(lijst, ti)))
 
                                     ))
                             // strikt genomen overbodig
