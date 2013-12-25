@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 
@@ -13,7 +15,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -37,9 +42,10 @@ public class Controller {
 
     @FXML
     void initialize() {
+
         providers = Arrays.asList(
-                new SimpleUrlSearchProvider("Google", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser()),
-                new SimpleUrlSearchProvider("Wikipedia", "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=15&search=", new WikipediaJsonParser("http://en.wikipedia.org/wiki/"))
+                buildProvider("Google", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser(), "/ico/google.png"),
+                buildProvider("Wikipedia", "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=15&search=", new WikipediaJsonParser("http://en.wikipedia.org/wiki/"), "/ico/wikipedia.png")
         );
 
         zoekterm.setText("Computer");
@@ -49,7 +55,8 @@ public class Controller {
         TreeItem<String> rootItem = new TreeItem<String>("Search Providers");
         rootItem.setExpanded(true);
         for (SearchProvider searchProvider : providers) {
-            TreeItem<String> item = new TreeItem<String>(searchProvider.getName());
+            TreeItem<String> item = new TreeItem<String>(searchProvider.getName(), new ImageView(searchProvider.getImage()));
+//            item.s
             rootItem.getChildren().add(item);
         }
         searches.setRoot(rootItem);
@@ -68,6 +75,14 @@ public class Controller {
                 }
             }
         });
+    }
+
+    private SimpleUrlSearchProvider buildProvider(String name, String url, LinkParser linkParser, String icoPath) {
+        Image image = new Image(getClass().getResourceAsStream(icoPath));
+        if(image ==null) {
+            log("Image " + icoPath + " kon niet gevonden worden!");
+        }
+        return new SimpleUrlSearchProvider(name, url, linkParser, image);
     }
 
     private void handleEvent(KeyEvent evt) {
@@ -245,11 +260,17 @@ class SimpleUrlSearchProvider implements SearchProvider {
     private final String name;
     private final String url;
     private final LinkParser parser;
+    private final Image image;
 
-    SimpleUrlSearchProvider(String name, String url, LinkParser parser) {
+    SimpleUrlSearchProvider(String name, String url, LinkParser parser, Image image) {
         this.name = name;
         this.url = url;
         this.parser = parser;
+        this.image = image;
+    }
+
+    public Image getImage() {
+        return image;
     }
 
     @Override

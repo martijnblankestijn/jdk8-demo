@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.scene.image.Image;
+
 import java.net.URL;
 import java.util.List;
 
@@ -12,4 +14,6 @@ public interface SearchProvider {
     URL buildUrl(String zoekterm);
 
     List<URL> parse(String page);
+
+    Image getImage();
 }
