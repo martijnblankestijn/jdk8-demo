@@ -46,7 +46,6 @@ public class Controller {
     void initialize() {
         // TODO inject
         providers = new SearchProviderService().getProviders();
-        zoekterm.setText("Computer");
         zoekterm.textProperty()
                 .addListener((observable, oud, nieuw) -> {
                     if (!Objects.equals(oud, nieuw)) search(nieuw);
