@@ -1,5 +1,6 @@
 package nl.ordina.java8.composable;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
@@ -45,7 +46,6 @@ public class Controller {
     void initialize() {
         // TODO inject
         providers = new SearchProviderService().getProviders();
-        zoekterm.requestFocus();
         zoekterm.setText("Computer");
         zoekterm.textProperty()
                 .addListener((observable, oud, nieuw) -> {
@@ -67,6 +67,8 @@ public class Controller {
                         if (item.isLeaf() && !rootItem.equals(item.getParent())) displayPageContent(item);
                     });
         });
+
+        Platform.runLater(() -> zoekterm.requestFocus());
     }
 
     private void displayPageContent(TreeItem<String> item) {
