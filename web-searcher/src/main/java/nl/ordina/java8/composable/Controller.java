@@ -84,6 +84,9 @@ public class Controller {
 
     private void search(String zoekterm) {
         LOG.log(FINE, "New search for {0}", zoekterm);
+        if(zoekterm.length() < 2) return;
+
+
         for (final SearchProvider provider : providers) {
             LOG.log(FINEST, "Dealing with provider {0}", provider.getName());
             CompletableFuture<List<UrlContent>> listCompletableFuture

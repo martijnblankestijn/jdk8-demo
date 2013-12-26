@@ -24,9 +24,11 @@ public class HttpUtil {
         }
     }
 
-    public static String readCompleteResponse(URLConnection yc) throws IOException {
+    public static String readCompleteResponse(URLConnection connection) throws IOException {
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()))) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String inputLine;
             while ((inputLine = in.readLine()) != null) builder.append(inputLine);
         }
