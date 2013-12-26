@@ -12,19 +12,18 @@ import nl.ordina.java8.composable.parsers.SearchProviderService;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.Optional.ofNullable;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static java.util.logging.Level.*;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINEST;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 import static javafx.application.Platform.runLater;
@@ -35,11 +34,10 @@ public class Controller {
     @FXML
     private TextField zoekterm;
     @FXML
-    private TreeView<String> searches;
+    private TreeView<Object> searches;
     @FXML
     private WebView page;
 
-    private Map<String, CompletableFuture<String>> content = new ConcurrentHashMap<>();
     private List<SearchProvider> providers;
 
     @FXML
@@ -51,41 +49,39 @@ public class Controller {
                     if (!Objects.equals(oud, nieuw)) search(nieuw);
                 });
 
-        TreeItem<String> rootItem = new TreeItem<>("Search Providers");
+        TreeItem<Object> rootItem = new TreeItem<>("Search Providers");
         rootItem.setExpanded(true);
         for (SearchProvider searchProvider : providers) {
-            TreeItem<String> item = new TreeItem<>(searchProvider.getName(), new ImageView(searchProvider.getImage()));
+            TreeItem<Object> item = new TreeItem<>(searchProvider.getName(), new ImageView(searchProvider.getImage()));
             rootItem.getChildren().add(item);
         }
         searches.setRoot(rootItem);
         searches.setShowRoot(false);
         searches.setOnMouseClicked(evt -> {
-            TreeItem<String> item = searches.getSelectionModel().getSelectedItem();
+            TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
             Optional.ofNullable(item)
                     .ifPresent(ti -> {
                         if (item.isLeaf() && !rootItem.equals(item.getParent())) displayPageContent(item);
                     });
         });
 
-        Platform.runLater(() -> zoekterm.requestFocus());
+        Platform.runLater(zoekterm::requestFocus);
     }
 
-    private void displayPageContent(TreeItem<String> item) {
+    private void displayPageContent(TreeItem item) {
         // Alternative, load the url
         // page.getEngine().load(item.getValue());
-        try {
-            String thePage = content.getOrDefault(item.getValue(), completedFuture("EMPTY"))
-                    .get(1, TimeUnit.SECONDS);
-            LOG.log(FINEST, "The PAGE: {0}", thePage);
+        if (item instanceof PageTreeItem) {
+            PageTreeItem pageTreeItem = ((PageTreeItem) item);
+            String thePage = pageTreeItem.getValue().getContent();
             page.getEngine().loadContent(thePage);
-        } catch (Exception e) {
-            page.getEngine().loadContent("Fout tijdens ophalen " + e.getMessage());
+
         }
     }
 
     private void search(String zoekterm) {
         LOG.log(FINE, "New search for {0}", zoekterm);
-        if(zoekterm.length() < 2) return;
+        if (zoekterm.length() < 2) return;
 
 
         for (final SearchProvider provider : providers) {
@@ -117,27 +113,71 @@ public class Controller {
 
     }
 
-    private void refreshList(List<URL> lijst, TreeItem<String> ti) {
-        try {
-            LOG.log(FINEST, "Removing children from {0}", ti.getValue());
-            ti.getChildren().removeAll(ti.getChildren());
+    private void refreshList(List<URL> lijst, TreeItem ti) {
+        ti.setExpanded(false);
+        LOG.log(FINEST, "Removing children from {0}", ti.getValue());
+        ti.getChildren().removeAll(ti.getChildren());
 
-            LOG.log(FINEST, "Adding children to {0} from {1}", new Object[] {ti.getValue(), lijst});
-            lijst.forEach(url -> addUrl(ti, url));
-        }catch (Exception e) {
-            System.err.println(ti + ": " + lijst);
+        LOG.log(FINEST, "Adding children to {0} from {1}", new Object[]{ti.getValue(), lijst});
+        try {
+            List<TreeItem<? extends Object>> treeItems = lijst
+                    .stream()
+                    .map(url -> new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url)))))
+                    .collect(toList());
+            ti.getChildren().addAll(treeItems);
+        } catch (Exception e) {
+            LOG.log(WARNING, "TreeItem {0} met lijst {1}.", new Object[] {ti, lijst});
             e.printStackTrace();
         }
-    }
-
-    private void addUrl(TreeItem<String> ti, URL url) {
-        LOG.log(FINER, "Add {0} to item {1}", new Object[]{url, ti});
-
-        ti.getChildren().add(new TreeItem<>(url.toString()));
-        content.putIfAbsent(url.toString(), supplyAsync(() -> HttpUtil.getPage(url)));
+        ti.setExpanded(true);
     }
 
 }
+class PageTreeItem extends TreeItem<Page> {
+    public PageTreeItem(Page page) {
+        super(page);
+        page.handeResponse(
+                (s) -> {
+                    System.out.println("SUCCESS");
+                    runLater(() -> {
+                    });
+                },
+                (exc) -> System.out.println("FAILURE")
+        );
+    }
+}
+
+class Page {
+    private final URL url;
+    private final CompletableFuture<String> page;
+    private String content;
+
+    Page(URL url, CompletableFuture<String> page) {
+        this.content = "Not retrieved yet";
+        this.url = url;
+        this.page = page;
+        page.whenComplete((s, exception) -> {
+            Optional<String> optionalContent = Optional.ofNullable(s);
+            content = optionalContent.isPresent() ? optionalContent.get() : exception.toString();
+        });
+    }
+
+    public void handeResponse(Consumer<String> success, Consumer<Throwable> failure) {
+        page.whenComplete((s, exc) -> {
+            ofNullable(s).ifPresent(success::accept);
+            ofNullable(exc).ifPresent(failure::accept);
+        });
+    }
+
+    public String toString() {
+        return url.toString();
+    }
+
+    public String getContent() {
+        return content;
+    }
+}
+
 
 class UrlContent {
     private final URL url;
