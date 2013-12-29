@@ -13,15 +13,13 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Created by martijn on 12/25/13.
- */
 public class GoogleJsonParser implements LinkParser {
 
     @Override
     public List<URL> parseForLinks(String message) {
         try (JsonReader parser = Json.createReader(new StringReader(message))) {
-            JsonArray results = parser.readObject()
+            JsonArray results = parser
+                    .readObject()
                     .getJsonObject("responseData")
                     .getJsonArray("results");
 

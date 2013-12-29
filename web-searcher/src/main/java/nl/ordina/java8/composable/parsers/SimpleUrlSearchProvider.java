@@ -73,5 +73,28 @@ public class SimpleUrlSearchProvider implements SearchProvider {
         return HttpUtil.getPage(searchPage);
     }
 
+    @Override
+    public String toString() {
+        return "SearchProvider{" +
+                "name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SearchProvider)) return false;
+
+        SearchProvider that = (SearchProvider) o;
+
+        if (!name.equals(that.getName())) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

@@ -9,9 +9,7 @@ import java.net.URLConnection;
 import java.util.Base64;
 import java.util.Properties;
 
-/**
- * Created by martijn on 12/25/13.
- */
+/***/
 public class BingRetrieval {
     @Test
     public void test() throws IOException {
