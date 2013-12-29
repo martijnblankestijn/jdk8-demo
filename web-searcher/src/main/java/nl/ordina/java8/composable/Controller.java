@@ -2,6 +2,7 @@ package nl.ordina.java8.composable;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
@@ -115,7 +116,7 @@ public class Controller {
     }
 
     private void refreshList(List<URL> lijst, TreeItem ti) {
-        ti.setExpanded(false);
+//        ti.setExpanded(false);
         LOG.log(FINEST, "Removing children from {0}", ti.getValue());
         ti.getChildren().removeAll(ti.getChildren());
 
@@ -123,7 +124,7 @@ public class Controller {
         try {
             List<TreeItem<? extends Object>> treeItems = lijst
                     .stream()
-                    .map(url -> new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url)))))
+                    .map(url -> createPageTreeItem(url))
                     .collect(toList());
             ti.getChildren().addAll(treeItems);
         } catch (Exception e) {
@@ -131,6 +132,11 @@ public class Controller {
             e.printStackTrace();
         }
 //        ti.setExpanded(true);
+    }
+
+    private PageTreeItem createPageTreeItem(URL url) {
+        PageTreeItem item = new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url))));
+       return item;
     }
 
 }
@@ -142,10 +148,12 @@ class PageTreeItem extends TreeItem<Page> {
         page.handeResponse(
                 (s) -> {
                     LOG.log(FINEST, "SUCCESS retrieving {0}", page);
-                    runLater(() -> {
-                    });
+                    Event.fireEvent(this, new TreeModificationEvent<>(TreeItem.valueChangedEvent(), this, page));
                 },
-                (exc) -> LOG.log(FINEST, "FAILURE retrieving {0}", page)
+                (exc) -> {
+                    LOG.log(FINEST, "FAILURE retrieving {0}", page);
+                    Event.fireEvent(this, new TreeModificationEvent<>(TreeItem.valueChangedEvent(), this, page));
+                }
         );
     }
 }
