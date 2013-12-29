@@ -1,7 +1,6 @@
 package nl.ordina.java8.composable;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -59,17 +58,13 @@ public class Controller {
         searches.setOnMouseClicked(evt -> {
             TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
             Optional.ofNullable(item)
-                    .ifPresent(ti -> {
-                        displayPageContent(item);
-                    });
+                    .ifPresent(ti -> displayPageContent(item));
         });
         searches.setCellFactory(treeView -> new PageCell());
         Platform.runLater(zoekterm::requestFocus);
     }
 
     private void displayPageContent(TreeItem item) {
-        // Alternative, load the url
-        // page.getEngine().load(item.getValue());
         if (item instanceof PageTreeItem) {
             PageTreeItem pageTreeItem = ((PageTreeItem) item);
             String thePage = pageTreeItem.getValue().getContent();
@@ -116,27 +111,24 @@ public class Controller {
     }
 
     private void refreshList(List<URL> lijst, TreeItem ti) {
-//        ti.setExpanded(false);
         LOG.log(FINEST, "Removing children from {0}", ti.getValue());
         ti.getChildren().removeAll(ti.getChildren());
 
         LOG.log(FINEST, "Adding children to {0} from {1}", new Object[]{ti.getValue(), lijst});
         try {
-            List<TreeItem<? extends Object>> treeItems = lijst
+            List<TreeItem<?>> treeItems = lijst
                     .stream()
-                    .map(url -> createPageTreeItem(url))
+                    .map(this::createPageTreeItem)
                     .collect(toList());
             ti.getChildren().addAll(treeItems);
         } catch (Exception e) {
             LOG.log(WARNING, "TreeItem {0} met lijst {1}.", new Object[] {ti, lijst});
             e.printStackTrace();
         }
-//        ti.setExpanded(true);
     }
 
     private PageTreeItem createPageTreeItem(URL url) {
-        PageTreeItem item = new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url))));
-       return item;
+        return new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url))));
     }
 
 }
@@ -167,10 +159,6 @@ class SearchProviderTreeItem extends TreeItem<SearchProvider> {
         return getValue().getSiteUrl();
     }
 
-    @Override
-    public ObservableList<TreeItem<SearchProvider>> getChildren() {
-        return super.getChildren();
-    }
 }
 
 class Page {

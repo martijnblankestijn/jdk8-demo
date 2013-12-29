@@ -27,7 +27,7 @@ public class BingSearchProvider extends SimpleUrlSearchProvider{
         URLConnection urlConnection;
         try {
             urlConnection = searchPage.openConnection();
-            urlConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(new String(key + ":" + key).getBytes()));
+            urlConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((key + ":" + key).getBytes()));
             return HttpUtil.readCompleteResponse(urlConnection);
 
         } catch (IOException e) {

@@ -11,11 +11,10 @@ import java.util.List;
 import java.util.Properties;
 
 public class SearchProviderService {
-    private List<SearchProvider> providers;
 
     public List<SearchProvider> getProviders() {
         Properties properties = loadProperties();
-        providers = Arrays.asList(
+        List<SearchProvider> providers = Arrays.asList(
                 buildProvider("Google", "http://www.google.com",
                         "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser(), "/ico/google.png"),
                 buildProvider("Wikipedia", "http://www.wikipedia.org",

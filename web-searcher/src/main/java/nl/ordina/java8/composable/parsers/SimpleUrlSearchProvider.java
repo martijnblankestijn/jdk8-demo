@@ -94,9 +94,8 @@ public class SimpleUrlSearchProvider implements SearchProvider {
 
         SearchProvider that = (SearchProvider) o;
 
-        if (!name.equals(that.getName())) return false;
+        return name.equals(that.getName());
 
-        return true;
     }
 
     @Override
