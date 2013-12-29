@@ -16,11 +16,11 @@ public class SearchProviderService {
     public List<SearchProvider> getProviders() {
         Properties properties = loadProperties();
         providers = Arrays.asList(
-                buildProvider("Google",
+                buildProvider("Google", "http://www.google.com",
                         "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=", new GoogleJsonParser(), "/ico/google.png"),
-                buildProvider("Wikipedia",
+                buildProvider("Wikipedia", "http://www.wikipedia.org",
                         "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=15&search=", new WikipediaJsonParser("http://en.wikipedia.org/wiki/"), "/ico/wikipedia.png"),
-                new BingSearchProvider("Bing",
+                new BingSearchProvider("Bing", "http://www.bing.com",
                         properties.getProperty("bing_url"), new BingJsonParser(), createImage("/ico/bing.png"),
                         properties.getProperty("bing_key"))
         );
@@ -37,9 +37,9 @@ public class SearchProviderService {
         return properties;
     }
 
-    private SimpleUrlSearchProvider buildProvider(String name, String url, LinkParser linkParser, String icoPath) {
+    private SimpleUrlSearchProvider buildProvider(String name, String siteUrl, String seachUrl, LinkParser linkParser, String icoPath) {
         Image image = createImage(icoPath);
-        return new SimpleUrlSearchProvider(name, url, linkParser, image);
+        return new SimpleUrlSearchProvider(name, siteUrl, seachUrl, linkParser, image);
     }
 
     private Image createImage(String icoPath) {

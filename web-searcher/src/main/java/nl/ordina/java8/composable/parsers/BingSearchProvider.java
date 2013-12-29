@@ -12,8 +12,8 @@ import java.util.Base64;
 public class BingSearchProvider extends SimpleUrlSearchProvider{
     private final String key;
 
-    public BingSearchProvider(String name, String url, LinkParser parser, Image image, String key) {
-        super(name, url, parser, image);
+    public BingSearchProvider(String name, String siteUrl, String searchUrl, LinkParser parser, Image image, String key) {
+        super(name, siteUrl, searchUrl, parser, image);
         this.key = key;
     }
 

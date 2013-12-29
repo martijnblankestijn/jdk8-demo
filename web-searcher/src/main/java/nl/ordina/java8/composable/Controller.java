@@ -60,7 +60,7 @@ public class Controller {
             TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
             Optional.ofNullable(item)
                     .ifPresent(ti -> {
-                        if (item.isLeaf() && !rootItem.equals(item.getParent())) displayPageContent(item);
+                        displayPageContent(item);
                     });
         });
         searches.setCellFactory(treeView -> new PageCell());
@@ -77,7 +77,7 @@ public class Controller {
         }
         else if (item instanceof SearchProviderTreeItem) {
             SearchProviderTreeItem searchProvider = (SearchProviderTreeItem) item;
-            page.getEngine().loadContent(searchProvider.getUrl());
+            page.getEngine().load(searchProvider.getUrl());
         }
     }
 
@@ -164,7 +164,7 @@ class SearchProviderTreeItem extends TreeItem<SearchProvider> {
     }
 
     public String getUrl() {
-        return "http://www.google.com";
+        return getValue().getSiteUrl();
     }
 
     @Override

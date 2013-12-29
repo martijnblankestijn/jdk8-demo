@@ -20,13 +20,15 @@ public class SimpleUrlSearchProvider implements SearchProvider {
     private static final Logger LOG = getLogger(lookup().lookupClass().getName());
 
     private final String name;
-    private final String url;
+    private final String siteUrl;
+    private final String searchUrl;
     private final LinkParser parser;
     private final Image image;
 
-    public SimpleUrlSearchProvider(String name, String url, LinkParser parser, Image image) {
+    public SimpleUrlSearchProvider(String name, String siteUrl, String searchUrl, LinkParser parser, Image image) {
         this.name = name;
-        this.url = url;
+        this.siteUrl = siteUrl;
+        this.searchUrl = searchUrl;
         this.parser = parser;
         this.image = image;
     }
@@ -50,17 +52,21 @@ public class SimpleUrlSearchProvider implements SearchProvider {
         return name;
     }
 
+    public String getSiteUrl() {
+        return siteUrl;
+    }
+
     URL buildUrl(String zoekterm) {
         final String spec;
         try {
-            spec = url + URLEncoder.encode(zoekterm, "UTF-8");
+            spec = searchUrl + URLEncoder.encode(zoekterm, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UnsupportedEncodingException voor " + zoekterm, e);
         }
         try {
             return new URL(spec);
         } catch (MalformedURLException e) {
-            throw new IllegalStateException("Ongeldige url:" + spec, e);
+            throw new IllegalStateException("Ongeldige searchUrl:" + spec, e);
         }
     }
 
@@ -77,7 +83,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
     public String toString() {
         return "SearchProvider{" +
                 "name='" + name + '\'' +
-                ", url='" + url + '\'' +
+                ", searchUrl='" + searchUrl + '\'' +
                 '}';
     }
 

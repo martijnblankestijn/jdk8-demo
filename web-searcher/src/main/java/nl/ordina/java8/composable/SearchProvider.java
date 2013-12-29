@@ -11,4 +11,6 @@ public interface SearchProvider {
     Image getImage();
 
     List<URL> retrieveResults(String zoekterm);
+
+    String getSiteUrl();
 }
