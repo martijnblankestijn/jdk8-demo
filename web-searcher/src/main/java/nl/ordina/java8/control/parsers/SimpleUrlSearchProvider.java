@@ -1,9 +1,9 @@
-package nl.ordina.java8.composable.parsers;
+package nl.ordina.java8.control.parsers;
 
 import javafx.scene.image.Image;
-import nl.ordina.java8.composable.LinkParser;
-import nl.ordina.java8.composable.SearchProvider;
-import nl.ordina.java8.composable.http.HttpUtil;
+import nl.ordina.java8.control.LinkParser;
+import nl.ordina.java8.control.SearchProvider;
+import nl.ordina.java8.control.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -40,7 +40,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
     @Override
     public List<URL> retrieveResults(String zoekterm) {
         URL url = buildUrl(zoekterm);
-        LOG.log(FINE, "Retrieve search rersults from {0}", url);
+
         List<URL> links = parseLinksForSite(url);
         LOG.log(FINE, "Lijst van {0}={1}", new Object[]{url, links});
 

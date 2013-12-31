@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="nl.ordina.java8.composable.Controller">
+          fx:controller="nl.ordina.java8.presentation.searcher.SearcherPresenter">
     <children>
         <SplitPane dividerPositions="0.2" focusTraversable="true" prefHeight="800.0" prefWidth="1200.0"
                    xmlns:fx="http://javafx.com/fxml">

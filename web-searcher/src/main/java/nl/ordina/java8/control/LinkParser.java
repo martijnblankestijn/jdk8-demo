@@ -1,4 +1,4 @@
-package nl.ordina.java8.composable;
+package nl.ordina.java8.control;
 
 import java.net.URL;
 import java.util.List;

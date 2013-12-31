@@ -1,4 +1,4 @@
-package nl.ordina.java8.composable;
+package nl.ordina.java8.presentation.searcher;
 
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -7,26 +7,25 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.web.WebView;
-import nl.ordina.java8.composable.http.HttpUtil;
-import nl.ordina.java8.composable.parsers.SearchProviderService;
+import nl.ordina.java8.control.Page;
+import nl.ordina.java8.control.SearchProvider;
+import nl.ordina.java8.control.SearchProviderService;
 
+import javax.inject.Inject;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.util.Optional.ofNullable;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.logging.Level.*;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 import static javafx.application.Platform.runLater;
 
-public class Controller {
+public class SearcherPresenter {
     private static final Logger LOG = getLogger(lookup().lookupClass().getName());
 
     @FXML
@@ -36,31 +35,31 @@ public class Controller {
     @FXML
     private WebView page;
 
-    private List<SearchProvider> providers;
+    @Inject
+    private SearchProviderService searchProviderService;
 
     @FXML
     void initialize() {
-        // TODO inject
-        providers = new SearchProviderService().getProviders();
         zoekterm.textProperty()
                 .addListener((observable, oud, nieuw) -> {
                     if (!Objects.equals(oud, nieuw)) search(nieuw);
                 });
 
         TreeItem<Object> rootItem = new TreeItem<>("Search Providers");
+        rootItem.setExpanded(true);
         searches.setRoot(rootItem);
         searches.setShowRoot(false);
-        rootItem.setExpanded(true);
-        for (SearchProvider searchProvider : providers) {
+        for (SearchProvider searchProvider : searchProviderService.getProviders()) {
             TreeItem item = new SearchProviderTreeItem(searchProvider);
             rootItem.getChildren().add(item);
         }
+
+        searches.setCellFactory(treeView -> new PageCell());
         searches.setOnMouseClicked(evt -> {
             TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
             Optional.ofNullable(item)
                     .ifPresent(ti -> displayPageContent(item));
         });
-        searches.setCellFactory(treeView -> new PageCell());
         Platform.runLater(zoekterm::requestFocus);
     }
 
@@ -80,35 +79,19 @@ public class Controller {
         LOG.log(FINE, "New search for {0}", zoekterm);
         if (zoekterm.length() < 2) return;
 
-
-        for (final SearchProvider provider : providers) {
-            LOG.log(FINEST, "Dealing with provider {0}", provider.getName());
-            CompletableFuture<List<UrlContent>> listCompletableFuture
-                    = supplyAsync(() -> provider.retrieveResults(zoekterm))
-                    // als de async de site van de search provider bevraagd heeft,
-                    // kunnen de url's worden toegevoegd aan de tree.
-                    // Zie ook het gebruik van Optional als alternatief van de null-check
-                    .whenComplete((List<URL> nullableLijst, Throwable exception) ->
-                            ofNullable(nullableLijst)
-                                    .ifPresent(lijst ->
-                                            searches.getRoot()
-                                                    .getChildren()
-                                                    .filtered(p -> provider.equals(p.getValue()))
-                                                    .forEach(ti -> runLater(() -> refreshList(lijst, ti)))
-
-                                    ))
-                            // strikt genomen overbodig
-                            // wel aardig om te laten zien hoe theCompose werkt
-                    .thenCompose(lijst ->
-                            supplyAsync(() -> lijst.stream()
-                                    .parallel()
-                                    .map(link -> new UrlContent(link, HttpUtil.getPage(link)))
-                                    .collect(toList())));
-
-        }
+        // als de async de site van de search provider bevraagd heeft,
+        // kunnen de url's worden toegevoegd aan de tree.
+        // Zie ook het gebruik van Optional als alternatief van de null-check
+        BiConsumer<SearchProvider,? super List<URL>> searchFunction = (provider, lijst) ->
+                searches.getRoot()
+                        .getChildren()
+                        .filtered(p -> provider.equals(p.getValue()))
+                        .forEach(ti -> runLater(() -> refreshList(lijst, ti)));
 
 
+        searchProviderService.search(zoekterm, searchFunction);
     }
+
 
     private void refreshList(List<URL> lijst, TreeItem ti) {
         LOG.log(FINEST, "Removing children from {0}", ti.getValue());
@@ -118,7 +101,7 @@ public class Controller {
         try {
             List<TreeItem<?>> treeItems = lijst
                     .stream()
-                    .map(this::createPageTreeItem)
+                    .map(this::fetchAndCreatePageItem)
                     .collect(toList());
             ti.getChildren().addAll(treeItems);
         } catch (Exception e) {
@@ -127,8 +110,8 @@ public class Controller {
         }
     }
 
-    private PageTreeItem createPageTreeItem(URL url) {
-        return new PageTreeItem(new Page(url, supplyAsync(() -> HttpUtil.getPage(url))));
+    private PageTreeItem fetchAndCreatePageItem(URL url) {
+        return new PageTreeItem(searchProviderService.retrieve(url));
     }
 
 }
@@ -160,51 +143,3 @@ class SearchProviderTreeItem extends TreeItem<SearchProvider> {
     }
 
 }
-
-class Page {
-    private final URL url;
-    private final CompletableFuture<String> page;
-    private String content;
-
-    Page(URL url, CompletableFuture<String> page) {
-        this.content = "Not retrieved yet";
-        this.url = url;
-        this.page = page;
-        page.whenComplete((s, exception) -> {
-            Optional<String> optionalContent = Optional.ofNullable(s);
-            content = optionalContent.isPresent() ? optionalContent.get() : exception.toString();
-        });
-    }
-
-    public void handeResponse(Consumer<String> success, Consumer<Throwable> failure) {
-        page.whenComplete((s, exc) -> {
-            ofNullable(s).ifPresent(success::accept);
-            ofNullable(exc).ifPresent(failure::accept);
-        });
-    }
-
-    public String toString() {
-        return url.toString();
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public boolean isRetrieved() { return page.isDone();}
-
-
-}
-
-
-class UrlContent {
-    private final URL url;
-    private final String content;
-
-    UrlContent(URL url, String content) {
-        this.url = url;
-        this.content = content;
-    }
-
-}
-

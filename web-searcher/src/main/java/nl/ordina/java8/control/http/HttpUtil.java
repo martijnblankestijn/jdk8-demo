@@ -1,4 +1,4 @@
-package nl.ordina.java8.composable.http;
+package nl.ordina.java8.control.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;

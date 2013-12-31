@@ -1,4 +1,4 @@
-package nl.ordina.java8.composable;
+package nl.ordina.java8.control;
 
 import javafx.scene.image.Image;
 

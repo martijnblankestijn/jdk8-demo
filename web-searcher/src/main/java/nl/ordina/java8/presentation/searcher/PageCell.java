@@ -1,8 +1,10 @@
-package nl.ordina.java8.composable;
+package nl.ordina.java8.presentation.searcher;
 
 import javafx.scene.control.TreeCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import nl.ordina.java8.control.Page;
+import nl.ordina.java8.control.SearchProvider;
 
 import static javafx.scene.paint.Color.BLACK;
 import static javafx.scene.paint.Color.LIGHTGRAY;

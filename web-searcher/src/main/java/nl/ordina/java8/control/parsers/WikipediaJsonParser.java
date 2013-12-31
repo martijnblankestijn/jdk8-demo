@@ -1,6 +1,6 @@
-package nl.ordina.java8.composable.parsers;
+package nl.ordina.java8.control.parsers;
 
-import nl.ordina.java8.composable.LinkParser;
+import nl.ordina.java8.control.LinkParser;
 
 import javax.json.Json;
 import javax.json.JsonArray;

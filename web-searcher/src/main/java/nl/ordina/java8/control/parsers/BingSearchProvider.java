@@ -1,15 +1,15 @@
-package nl.ordina.java8.composable.parsers;
+package nl.ordina.java8.control.parsers;
 
 import javafx.scene.image.Image;
-import nl.ordina.java8.composable.LinkParser;
-import nl.ordina.java8.composable.http.HttpUtil;
+import nl.ordina.java8.control.LinkParser;
+import nl.ordina.java8.control.http.HttpUtil;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Base64;
 
-public class BingSearchProvider extends SimpleUrlSearchProvider{
+public class BingSearchProvider extends SimpleUrlSearchProvider {
     private final String key;
 
     public BingSearchProvider(String name, String siteUrl, String searchUrl, LinkParser parser, Image image, String key) {
@@ -19,7 +19,7 @@ public class BingSearchProvider extends SimpleUrlSearchProvider{
 
     @Override
     public URL buildUrl(String zoekterm) {
-        return super.buildUrl("'" + zoekterm + "'" );
+        return super.buildUrl("'" + zoekterm + "'");
     }
 
     @Override

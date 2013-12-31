@@ -1,5 +1,5 @@
-import nl.ordina.java8.composable.http.HttpUtil;
-import nl.ordina.java8.composable.parsers.SearchProviderService;
+import nl.ordina.java8.control.http.HttpUtil;
+import nl.ordina.java8.control.SearchProviderService;
 import org.junit.Test;
 
 import java.io.IOException;
