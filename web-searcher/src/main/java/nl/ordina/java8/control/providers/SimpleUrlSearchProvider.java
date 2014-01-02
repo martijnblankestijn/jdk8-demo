@@ -1,6 +1,5 @@
-package nl.ordina.java8.control.parsers;
+package nl.ordina.java8.control.providers;
 
-import javafx.scene.image.Image;
 import nl.ordina.java8.control.LinkParser;
 import nl.ordina.java8.control.SearchProvider;
 import nl.ordina.java8.control.http.HttpUtil;
@@ -10,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static java.lang.invoke.MethodHandles.lookup;
@@ -23,28 +23,35 @@ public class SimpleUrlSearchProvider implements SearchProvider {
     private final String siteUrl;
     private final String searchUrl;
     private final LinkParser parser;
-    private final Image image;
+    private final String id;
 
-    public SimpleUrlSearchProvider(String name, String siteUrl, String searchUrl, LinkParser parser, Image image) {
+    public SimpleUrlSearchProvider(String name, String siteUrl, String searchUrl, LinkParser linkParser, String id) {
+        Objects.requireNonNull(name, "Parameter name must have a value");
+        Objects.requireNonNull(siteUrl, "Parameter siteUrl must have a value");
+        Objects.requireNonNull(searchUrl, "Parameter searchUrl must have a value");
+        Objects.requireNonNull(linkParser, "Parameter linkParser must have a value");
+        Objects.requireNonNull(id, "Parameter id must have a value");
+
         this.name = name;
         this.siteUrl = siteUrl;
         this.searchUrl = searchUrl;
-        this.parser = parser;
-        this.image = image;
-    }
-
-    public Image getImage() {
-        return image;
+        this.parser = linkParser;
+        this.id = id;
     }
 
     @Override
-    public List<URL> retrieveResults(String zoekterm) {
+    public List<URL> parseLinks(String zoekterm) {
         URL url = buildUrl(zoekterm);
 
         List<URL> links = parseLinksForSite(url);
         LOG.log(FINE, "Lijst van {0}={1}", new Object[]{url, links});
 
         return links;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -94,7 +101,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
 
         SearchProvider that = (SearchProvider) o;
 
-        return name.equals(that.getName());
+        return id.equals(that.getId());
 
     }
 

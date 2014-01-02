@@ -1,6 +1,5 @@
-package nl.ordina.java8.control.parsers;
+package nl.ordina.java8.control.providers;
 
-import javafx.scene.image.Image;
 import nl.ordina.java8.control.LinkParser;
 import nl.ordina.java8.control.http.HttpUtil;
 
@@ -12,8 +11,8 @@ import java.util.Base64;
 public class BingSearchProvider extends SimpleUrlSearchProvider {
     private final String key;
 
-    public BingSearchProvider(String name, String siteUrl, String searchUrl, LinkParser parser, Image image, String key) {
-        super(name, siteUrl, searchUrl, parser, image);
+    public BingSearchProvider(String name, String siteUrl, String searchUrl, LinkParser linkParser, String id, String key) {
+        super(name, siteUrl, searchUrl, linkParser, id);
         this.key = key;
     }
 

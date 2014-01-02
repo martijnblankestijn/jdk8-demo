@@ -1,16 +1,12 @@
 package nl.ordina.java8.control;
 
-import javafx.scene.image.Image;
-
 import java.net.URL;
 import java.util.List;
 
 public interface SearchProvider {
+    String getId();
     String getName();
-
-    Image getImage();
-
-    List<URL> retrieveResults(String zoekterm);
-
+    List<URL> parseLinks(String zoekterm);
     String getSiteUrl();
+
 }

@@ -17,11 +17,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 public class WikipediaJsonParser implements LinkParser {
-    private final String url;
-
-    public WikipediaJsonParser(String url) {
-        this.url = url;
-    }
+    private final String url= "http://en.wikipedia.org/wiki/";
 
     @Override
     public List<URL> parseForLinks(String message) {
