@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.web.WebView?>
+<?import javafx.scene.web.*?>
+
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="nl.ordina.java8.presentation.searcher.SearcherPresenter">
     <children>
@@ -11,20 +13,31 @@
             <items>
                 <AnchorPane prefHeight="800.0" prefWidth="400.0">
                     <children>
-                        <SplitPane dividerPositions="0.2" focusTraversable="true" layoutX="-66.0"
-                                   layoutY="-7.0" orientation="VERTICAL">
+                        <SplitPane dividerPositions="0.0942211055276382" focusTraversable="true" layoutX="-66.0"
+                                   layoutY="-7.0" orientation="VERTICAL" prefHeight="798.0" prefWidth="438.0"
+                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <items>
                                 <AnchorPane prefHeight="50.0">
                                     <children>
                                         <Label layoutX="80.0" layoutY="15.0" text="Zoekterm"/>
-                                        <TextField fx:id="zoekterm" layoutX="150.0" layoutY="13.0" prefWidth="200.0" prefHeight="20.0"/>
+                                        <TextField fx:id="zoekterm" layoutX="150.0" layoutY="13.0" prefHeight="20.0"
+                                                   prefWidth="200.0"/>
                                     </children>
                                 </AnchorPane>
-                                <AnchorPane prefHeight="400.0" prefWidth="500.0">
+                                <AnchorPane prefHeight="720.0" prefWidth="500.0">
                                     <children>
-                                        <TreeView fx:id="searches" layoutX="10.0" layoutY="8.0" prefHeight="600.0"
-                                                  prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
-                                                  AnchorPane.leftAnchor="67.0" AnchorPane.rightAnchor="90.0" />
+                                        <ScrollPane prefHeight="720.0" prefViewportHeight="362.0"
+                                                    prefViewportWidth="500.0" prefWidth="502.0"
+                                                    xmlns="http://javafx.com/javafx/8"
+                                                    xmlns:fx="http://javafx.com/fxml/1">
+                                            <content>
+                                                <TreeView fx:id="searches" layoutX="10.0" layoutY="8.0"
+                                                          prefHeight="720.0" prefWidth="500.0"
+                                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                                            </content>
+                                        </ScrollPane>
                                     </children>
                                 </AnchorPane>
                             </items>
@@ -33,7 +46,8 @@
                 </AnchorPane>
                 <AnchorPane prefHeight="800.0" prefWidth="800.0">
                     <children>
-                        <WebView fx:id="page" prefHeight="800.0" prefWidth="800.0"/>
+                        <WebView fx:id="page" prefHeight="800.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0"
+                                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                     </children>
                 </AnchorPane>
             </items>

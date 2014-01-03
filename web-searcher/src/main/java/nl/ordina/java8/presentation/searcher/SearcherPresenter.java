@@ -15,11 +15,11 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 import static java.lang.invoke.MethodHandles.lookup;
+import static java.util.Optional.ofNullable;
 import static java.util.logging.Level.*;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
@@ -57,7 +57,7 @@ public class SearcherPresenter {
         searches.setCellFactory(treeView -> new PageCell());
         searches.setOnMouseClicked(evt -> {
             TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
-            Optional.ofNullable(item)
+            ofNullable(item)
                     .ifPresent(ti -> displayPageContent(item));
         });
         Platform.runLater(zoekterm::requestFocus);

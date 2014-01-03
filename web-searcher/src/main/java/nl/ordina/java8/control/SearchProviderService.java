@@ -7,7 +7,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.net.URL;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
@@ -22,14 +21,12 @@ import static java.util.logging.Logger.getLogger;
 public class SearchProviderService {
     private static final Logger LOG = getLogger(lookup().lookupClass().getName());
 
-    public static final String CLASS_PATH_PROPERTIES = "/etc/configuration.properties";
-    private final Properties properties = new Properties();
     private Set<SearchProvider> searchProviders;
     @Inject
     SearchProviderFactory factory;
 
     @PostConstruct
-    private void loadProperties() {
+    private void construct() {
         searchProviders = factory.getSearchProviders();
     }
 
@@ -39,7 +36,7 @@ public class SearchProviderService {
 
 
     public void search(String zoekterm, BiConsumer<SearchProvider, ? super List<URL>> callback) {
-        for (final SearchProvider provider : getProviders()) {
+        for (final SearchProvider provider : factory.getSearchProviders()) {
             LOG.log(FINEST, "Dealing with provider {0}", provider.getName());
             supplyAsync(() -> provider.parseLinks(zoekterm))
                     .whenComplete((List<URL> nullableLijst, Throwable exception) -> {
