@@ -5,9 +5,23 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.*?>
 
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="nl.ordina.java8.presentation.searcher.SearcherPresenter">
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="nl.ordina.java8.presentation.searcher.SearcherPresenter">
     <children>
+        <MenuBar xmlns:fx="http://javafx.com/fxml" visible="true">
+            <menus>
+                <Menu mnemonicParsing="true" text="_File" >
+                    <items>
+                        <MenuItem fx:id="closeItem" mnemonicParsing="true" text="_Close"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="true" text="_Help">
+                    <items>
+                        <MenuItem fx:id="aboutItem" mnemonicParsing="true" text="_About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
         <SplitPane dividerPositions="0.2" focusTraversable="true" prefHeight="800.0" prefWidth="1200.0"
                    xmlns:fx="http://javafx.com/fxml">
             <items>
@@ -53,10 +67,4 @@
             </items>
         </SplitPane>
     </children>
-    <columnConstraints>
-        <ColumnConstraints/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints/>
-    </rowConstraints>
-</GridPane>
+</VBox>
