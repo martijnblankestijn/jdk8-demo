@@ -1,7 +1,7 @@
 package nl.ordina.java8.presentation.searcher;
 
+import com.airhacks.afterburner.views.FXMLView;
 import javafx.application.Platform;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
@@ -14,6 +14,7 @@ import nl.ordina.java8.control.Page;
 import nl.ordina.java8.control.SearchProvider;
 import nl.ordina.java8.control.SearchProviderService;
 import nl.ordina.java8.presentation.about.AboutView;
+import nl.ordina.java8.presentation.configuration.ConfigurationView;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -49,6 +50,8 @@ public class SearcherPresenter {
   @FXML
   private MenuItem aboutItem;
 
+  @FXML
+  private MenuItem settingsItem;
 
   @Inject
   private SearchProviderService searchProviderService;
@@ -59,7 +62,8 @@ public class SearcherPresenter {
 
 
     closeItem.setOnAction(evt -> close());
-    aboutItem.setOnAction(evt -> showAbout());
+    aboutItem.setOnAction(evt ->  showDialog(new AboutView()) );
+    settingsItem.setOnAction(evt -> showDialog(new ConfigurationView()));
 
     zoekterm.textProperty()
       .addListener((observable, oud, nieuw) -> {
@@ -86,13 +90,13 @@ public class SearcherPresenter {
     Platform.runLater(zoekterm::requestFocus);
   }
 
-  private void showAbout() {
+  private void showDialog(FXMLView view) {
     final Stage dialog = new Stage();
     dialog.initModality(WINDOW_MODAL);
     dialog.initStyle(UTILITY);
     dialog.setResizable(false);
     dialog.initOwner(searches.getScene().getWindow());
-    dialog.setScene(new Scene(new AboutView().getView()));
+    dialog.setScene(new Scene(view.getView()));
     dialog.showAndWait();
   }
 
@@ -145,20 +149,3 @@ public class SearcherPresenter {
 
 }
 
-class PageTreeItem extends TreeItem<Page> {
-  private static final Logger LOG = getLogger(lookup().lookupClass().getName());
-
-  public PageTreeItem(Page page) {
-    super(page);
-    page.handeResponse(
-      (s) -> {
-        LOG.log(FINEST, "SUCCESS retrieving {0}", page);
-        Event.fireEvent(this, new TreeModificationEvent<>(TreeItem.valueChangedEvent(), this, page));
-      },
-      (exc) -> {
-        LOG.log(FINEST, "FAILURE retrieving {0}", page);
-        Event.fireEvent(this, new TreeModificationEvent<>(TreeItem.valueChangedEvent(), this, page));
-      }
-    );
-  }
-}
