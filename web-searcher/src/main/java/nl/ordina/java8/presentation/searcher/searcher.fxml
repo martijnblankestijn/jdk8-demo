@@ -1,70 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.web.*?>
+<?import javafx.scene.web.WebView?>
 
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="nl.ordina.java8.presentation.searcher.SearcherPresenter">
-    <children>
-        <MenuBar xmlns:fx="http://javafx.com/fxml" visible="true">
-            <menus>
-                <Menu mnemonicParsing="true" text="_File" >
-                    <items>
-                        <MenuItem fx:id="closeItem" mnemonicParsing="true" text="_Close"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="true" text="_Help">
-                    <items>
-                        <MenuItem fx:id="aboutItem" mnemonicParsing="true" text="_About"/>
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-        <SplitPane dividerPositions="0.2" focusTraversable="true" prefHeight="800.0" prefWidth="1200.0"
-                   xmlns:fx="http://javafx.com/fxml">
-            <items>
-                <AnchorPane prefHeight="800.0" prefWidth="400.0">
-                    <children>
-                        <SplitPane dividerPositions="0.0942211055276382" focusTraversable="true" layoutX="-66.0"
-                                   layoutY="-7.0" orientation="VERTICAL" prefHeight="798.0" prefWidth="438.0"
-                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <items>
-                                <AnchorPane prefHeight="50.0">
-                                    <children>
-                                        <Label layoutX="80.0" layoutY="15.0" text="Zoekterm"/>
-                                        <TextField fx:id="zoekterm" layoutX="150.0" layoutY="13.0" prefHeight="20.0"
-                                                   prefWidth="200.0"/>
-                                    </children>
-                                </AnchorPane>
-                                <AnchorPane prefHeight="720.0" prefWidth="500.0">
-                                    <children>
-                                        <ScrollPane prefHeight="720.0" prefViewportHeight="362.0"
-                                                    prefViewportWidth="500.0" prefWidth="502.0"
-                                                    xmlns="http://javafx.com/javafx/8"
-                                                    xmlns:fx="http://javafx.com/fxml/1">
-                                            <content>
-                                                <TreeView fx:id="searches" layoutX="10.0" layoutY="8.0"
-                                                          prefHeight="720.0" prefWidth="500.0"
-                                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                                            </content>
-                                        </ScrollPane>
-                                    </children>
-                                </AnchorPane>
-                            </items>
-                        </SplitPane>
-                    </children>
+    <MenuBar xmlns:fx="http://javafx.com/fxml" visible="true">
+        <Menu mnemonicParsing="true" text="_File">
+            <MenuItem fx:id="closeItem" mnemonicParsing="true" text="_Close"/>
+        </Menu>
+        <Menu mnemonicParsing="true" text="_Help">
+            <MenuItem fx:id="aboutItem" mnemonicParsing="true" text="_About"/>
+        </Menu>
+    </MenuBar>
+    <SplitPane dividerPositions="0.2" focusTraversable="true" prefHeight="800.0" prefWidth="1200.0"
+               xmlns:fx="http://javafx.com/fxml">
+        <AnchorPane prefHeight="800.0" prefWidth="400.0">
+            <SplitPane dividerPositions="0.0942211055276382" focusTraversable="true" layoutX="-66.0"
+                       layoutY="-7.0" orientation="VERTICAL" prefHeight="798.0" prefWidth="438.0"
+                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <AnchorPane prefHeight="50.0">
+                    <Label layoutX="80.0" layoutY="15.0" text="Zoekterm"/>
+                    <TextField fx:id="zoekterm" layoutX="150.0" layoutY="13.0" prefHeight="20.0"
+                               prefWidth="200.0"/>
                 </AnchorPane>
-                <AnchorPane prefHeight="800.0" prefWidth="800.0">
-                    <children>
-                        <WebView fx:id="page" prefHeight="800.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0"
-                                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    </children>
+                <AnchorPane prefHeight="720.0" prefWidth="500.0">
+                    <ScrollPane prefHeight="720.0" prefViewportHeight="362.0"
+                                prefViewportWidth="500.0" prefWidth="502.0"
+                                xmlns="http://javafx.com/javafx/8"
+                                xmlns:fx="http://javafx.com/fxml/1">
+                        <content>
+                            <TreeView fx:id="searches" layoutX="10.0" layoutY="8.0"
+                                      prefHeight="720.0" prefWidth="500.0"
+                                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                        </content>
+                    </ScrollPane>
                 </AnchorPane>
-            </items>
-        </SplitPane>
-    </children>
+            </SplitPane>
+        </AnchorPane>
+        <AnchorPane prefHeight="800.0" prefWidth="800.0">
+            <WebView fx:id="page" prefHeight="800.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0"
+                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+        </AnchorPane>
+    </SplitPane>
 </VBox>

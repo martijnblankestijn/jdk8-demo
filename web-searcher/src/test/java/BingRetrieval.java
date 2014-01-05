@@ -22,7 +22,7 @@ public class BingRetrieval {
 
         URLConnection urlConnection = new URL(properties.getProperty("bing_url") + "'Computers'").openConnection();
             String key = properties.getProperty("bing_key");
-        String encode = Base64.getEncoder().encodeToString(new String(key + ":" + key).getBytes());
+        String encode = Base64.getEncoder().encodeToString((key + ":" + key).getBytes());
         urlConnection.setRequestProperty("Authorization", "Basic " + encode);
         System.out.println(HttpUtil.readCompleteResponse(urlConnection));
 

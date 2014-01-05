@@ -1,6 +1,7 @@
 package nl.ordina.java8.control.parsers;
 
 import nl.ordina.java8.control.LinkParser;
+import nl.ordina.java8.control.http.HttpUtil;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -8,7 +9,6 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 public class WikipediaJsonParser implements LinkParser {
-    private final String url= "http://en.wikipedia.org/wiki/";
+    private final static String WIKIPEDIA_URL = "http://en.wikipedia.org/wiki/";
 
     @Override
     public List<URL> parseForLinks(String message) {
@@ -38,10 +38,6 @@ public class WikipediaJsonParser implements LinkParser {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("Ongeldige url: " + jsv.toString(), e);
         }
-        try {
-            return new URL(url + encode);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Ongeldige url: " + url + encode, e);
-        }
+      return HttpUtil.createUrl((WIKIPEDIA_URL + encode));
     }
 }

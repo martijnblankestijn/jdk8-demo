@@ -3,6 +3,7 @@ package nl.ordina.java8.control.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Logger;
@@ -34,4 +35,14 @@ public class HttpUtil {
         }
         return builder.toString();
     }
+
+  public static URL createUrl(String url) {
+    final URL site;
+    try {
+      site = new URL(url);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+    return site;
+  }
 }

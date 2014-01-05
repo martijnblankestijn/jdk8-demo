@@ -5,7 +5,6 @@ import nl.ordina.java8.control.SearchProvider;
 import nl.ordina.java8.control.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
@@ -15,12 +14,13 @@ import java.util.logging.Logger;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Logger.getLogger;
+import static nl.ordina.java8.control.http.HttpUtil.createUrl;
 
 public class SimpleUrlSearchProvider implements SearchProvider {
     private static final Logger LOG = getLogger(lookup().lookupClass().getName());
 
     private final String name;
-    private final String siteUrl;
+    private final URL siteUrl;
     private final String searchUrl;
     private final LinkParser parser;
     private final String id;
@@ -33,7 +33,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
         Objects.requireNonNull(id, "Parameter id must have a value");
 
         this.name = name;
-        this.siteUrl = siteUrl;
+        this.siteUrl = createUrl(siteUrl);
         this.searchUrl = searchUrl;
         this.parser = linkParser;
         this.id = id;
@@ -59,7 +59,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
         return name;
     }
 
-    public String getSiteUrl() {
+    public URL getSiteUrl() {
         return siteUrl;
     }
 
@@ -70,11 +70,7 @@ public class SimpleUrlSearchProvider implements SearchProvider {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UnsupportedEncodingException voor " + zoekterm, e);
         }
-        try {
-            return new URL(spec);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("Ongeldige searchUrl:" + spec, e);
-        }
+      return createUrl(spec);
     }
 
     private List<URL> parseLinksForSite(final URL searchPage) {

@@ -47,6 +47,6 @@ public class SearchProviderService {
     }
 
     public Page retrieve(URL url) {
-        return new Page(url, supplyAsync(() -> HttpUtil.getPage(url)));
+        return new Page(url, supplyAsync(() -> HttpUtil.getPage(url)), null);
     }
 }

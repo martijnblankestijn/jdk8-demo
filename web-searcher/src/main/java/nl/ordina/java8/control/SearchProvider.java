@@ -7,6 +7,6 @@ public interface SearchProvider {
     String getId();
     String getName();
     List<URL> parseLinks(String zoekterm);
-    String getSiteUrl();
+    URL getSiteUrl();
 
 }

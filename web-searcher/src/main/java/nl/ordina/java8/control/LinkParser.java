@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface LinkParser {
     /**
-     * @param response
+     * @param response html-pagina
      * @return list of links
      */
     List<URL> parseForLinks(String response);

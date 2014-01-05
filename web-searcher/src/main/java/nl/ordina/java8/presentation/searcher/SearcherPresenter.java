@@ -24,12 +24,14 @@ import java.util.logging.Logger;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.logging.Level.*;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 import static javafx.application.Platform.runLater;
 import static javafx.stage.Modality.WINDOW_MODAL;
 import static javafx.stage.StageStyle.UTILITY;
+import static nl.ordina.java8.control.http.HttpUtil.getPage;
 
 public class SearcherPresenter {
   private static final Logger LOG = getLogger(lookup().lookupClass().getName());
@@ -37,7 +39,7 @@ public class SearcherPresenter {
   @FXML
   private TextField zoekterm;
   @FXML
-  private TreeView<Object> searches;
+  private TreeView<Page> searches;
   @FXML
   private WebView page;
 
@@ -64,21 +66,23 @@ public class SearcherPresenter {
         if (!Objects.equals(oud, nieuw)) search(nieuw);
       });
 
-    TreeItem<Object> rootItem = new TreeItem<>("Search Providers");
+    TreeItem<Page> rootItem = new TreeItem<>(null);
     rootItem.setExpanded(true);
     searches.setRoot(rootItem);
     searches.setShowRoot(false);
+
     for (SearchProvider searchProvider : searchProviderService.getProviders()) {
-      TreeItem item = new SearchProviderTreeItem(searchProvider);
-      rootItem.getChildren().add(item);
+      final URL site = searchProvider.getSiteUrl();
+      Page page = new Page(site, supplyAsync(() -> getPage(site)), getClass().getResource("/ico/" + searchProvider.getId() + ".png"));
+      rootItem.getChildren().add(new PageTreeItem(page));
     }
 
     searches.setCellFactory(treeView -> new PageCell());
-    searches.setOnMouseClicked(evt -> {
-      TreeItem<Object> item = searches.getSelectionModel().getSelectedItem();
-      ofNullable(item)
-        .ifPresent(ti -> displayPageContent(item));
-    });
+
+    searches.setOnMouseClicked(evt ->
+      ofNullable(searches.getSelectionModel().getSelectedItem())
+        .ifPresent(ti -> displayPageContent(ti.getValue())));
+
     Platform.runLater(zoekterm::requestFocus);
   }
 
@@ -97,15 +101,8 @@ public class SearcherPresenter {
     Platform.exit();
   }
 
-  private void displayPageContent(TreeItem item) {
-    if (item instanceof PageTreeItem) {
-      PageTreeItem pageTreeItem = ((PageTreeItem) item);
-      String thePage = pageTreeItem.getValue().getContent();
-      page.getEngine().loadContent(thePage);
-    } else if (item instanceof SearchProviderTreeItem) {
-      SearchProviderTreeItem searchProvider = (SearchProviderTreeItem) item;
-      page.getEngine().load(searchProvider.getUrl());
-    }
+  private void displayPageContent(Page item) {
+      page.getEngine().loadContent(item.getContent());
   }
 
   private void search(String zoekterm) {
@@ -118,24 +115,23 @@ public class SearcherPresenter {
     BiConsumer<SearchProvider, ? super List<URL>> searchFunction = (provider, lijst) ->
       searches.getRoot()
         .getChildren()
-        .filtered(p -> provider.equals(p.getValue()))
+        .filtered(p -> provider.getSiteUrl().equals(p.getValue().getUrl()))
         .forEach(ti -> runLater(() -> refreshList(lijst, ti)));
-
 
     searchProviderService.search(zoekterm, searchFunction);
   }
 
 
-  private void refreshList(List<URL> lijst, TreeItem ti) {
-    LOG.log(FINEST, "Removing children from {0}", ti.getValue());
+  private void refreshList(List<URL> lijst, TreeItem<Page> ti) {
     ti.getChildren().removeAll(ti.getChildren());
 
     LOG.log(FINEST, "Adding children to {0} from {1}", new Object[]{ti.getValue(), lijst});
     try {
-      List<TreeItem<?>> treeItems = lijst
+      List<TreeItem<Page>> treeItems = lijst
         .stream()
         .map(this::fetchAndCreatePageItem)
         .collect(toList());
+
       ti.getChildren().addAll(treeItems);
     } catch (Exception e) {
       LOG.log(WARNING, "TreeItem {0} met lijst {1}.", new Object[]{ti, lijst});
@@ -165,15 +161,4 @@ class PageTreeItem extends TreeItem<Page> {
       }
     );
   }
-}
-
-class SearchProviderTreeItem extends TreeItem<SearchProvider> {
-  public SearchProviderTreeItem(SearchProvider provider) {
-    super(provider);
-  }
-
-  public String getUrl() {
-    return getValue().getSiteUrl();
-  }
-
 }

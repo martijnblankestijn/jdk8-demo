@@ -90,8 +90,9 @@ public class SearchProviderFactory {
     }
 
     /**
-     * Read all parameters of the constructor and match them with the configured provider properties
-     * @param providerProperties
+     * Read all parameters of the constructor and match them with the configured provider properties.
+     *
+     * @param providerProperties properties voor de provider
      * @return the created search provider
      */
     private SearchProvider createProvider(Map<String, Object> providerProperties) {
